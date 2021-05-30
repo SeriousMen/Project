@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Admin">
+	<!-- 관리자 로그인 -->
+	<select id="adminLogin" parameterType="map" resultType="_int">
+		SELECT COUNT(*) FROM DG_ADMIN WHERE ADMINID = #{adminId} AND ADMINPW = #{adminPw}
+	</select>
+	
+	<!-- 회원 강퇴 -->
+	<delete id="kickMember" parameterType="string">
+		DELETE DG_MEMBER WHERE MEMBERID = #{memberId}
+	</delete>
+	
+	<!-- 트레이너 강퇴 -->
+	<delete id="kickTrainer" parameterType="string">
+		DELETE DG_TRAINER WHERE TRAINERID = #{trainerId}
+	</delete>
+</mapper>

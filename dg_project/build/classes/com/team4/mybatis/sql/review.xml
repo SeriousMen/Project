@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Review">
+	<!-- Review 작성하기 -->
+	<insert id="reviewWrite" parameterType="reviewVO">
+		INSERT INTO DG_REVIEW VALUES(SYSDATE, DG_REVIEW_SEQ.NEXTVAL, #{trainerId}, #{memberId}, #{reviewContent})
+	</insert>
+	
+	<!-- 현재 시퀀스 얻어오기 -->
+	<select id="getReviewNum" resultType="_int">
+		SELECT DG_REVIEW_SEQ.CURRVAL FROM DUAL
+	</select>
+	
+	<!-- 총 Review 개수 얻어오기 -->
+	<select id="getReviewCnt" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM DG_REVIEW WHERE TRAINERID = #{trainerId}
+	</select>
+	
+	<!-- Review 리스트 -->
+	<select id="getReviewList" parameterType="map" resultType="reviewVO">
+		SELECT * FROM
+			(SELECT ROWNUM R, D.* FROM
+				(SELECT * FROM DG_REVIEW WHERE TRAINERID = #{trainerId} ORDER BY REVIEWNUM DESC) D) B
+		WHERE B.R BETWEEN #{startRow} AND #{endRow} 
+	</select>
+	
+	<!-- Review 게시글 가져오기 -->
+	<select id="getReviewDetail" parameterType="_int" resultType="reviewVO">
+		SELECT * FROM DG_REVIEW WHERE REVIEWNUM = #{reviewNum}
+	</select>
+	
+	<!-- Review 게시글 삭제하기 -->
+	<delete id="deleteReview" parameterType="_int">
+		DELETE DG_REVIEW WHERE REVIEWNUM = #{reviewNum}
+	</delete>
+	
+	<!-- Review 게시글 수정하기 -->
+	<update id="updateReview" parameterType="reviewVO">
+		UPDATE DG_REVIEW SET REVIEWCONTENT = #{reviewContent}, UPLOAD = SYSDATE WHERE REVIEWNUM = #{reviewNum}
+	</update>
+	
+	<!-- 결제 내역 -->
+	<update id="minusMemberPoint" parameterType="map">
+		UPDATE DG_MEMBER SET MEMBERPOINT = MEMBERPOINT - #{price} WHERE MEMBERID = #{memberId} 
+	</update>
+	
+	<update id="plusPoint" parameterType="map">
+		UPDATE DG_TRAINER SET TRAINERLIKE = TRAINERLIKE + 1, TRAINERPOINT = TRAINERPOINT + #{price} WHERE TRAINERID = #{trainerId}
+	</update>
+	
+	<insert id="pointContent" parameterType="map">
+		INSERT INTO DG_TRADE VALUES(DG_TRADE_SEQ.NEXTVAL, #{userId}, #{trainerId}, #{content}, SYSDATE, 0)
+	</insert>
+	
+	<!-- 리뷰 작성 여부 -->
+	<update id="checkReview" parameterType="TradeVO">
+		UPDATE DG_TRADE SET CHECKREVIEW =#{checkReview} WHERE TRADENUM = #{tradeNum}
+	</update>
+	
+	<!-- 운동성향 테스트 -->
+	<select id="propensity" parameterType="map" resultType="trainerVO">
+		SELECT * FROM (SELECT ROWNUM R, T1.* FROM
+			(SELECT * FROM 
+				(SELECT * FROM DG_TRAINER
+					<if test="dateCheck != null">
+						WHERE
+						<foreach collection="dateCheck" item="i" separator="and">
+							TRAINERCONTENT LIKE '%' || #{i} || '%'
+						</foreach>
+					</if>)
+				<if test="attentionCheck != null">
+					WHERE
+					<foreach collection="attentionCheck" item="j" separator="and">
+						TRAINERCONTENT LIKE '%' || #{j} || '%'
+					</foreach>
+				</if>) T1 
+			WHERE TRAINERADDRESSZIPCODE LIKE #{zipCode}||'%' 
+			AND TRAINERGENDER = #{tgCheck} AND ROWNUM <![CDATA[<=]]> #{page.endRow}) T2 
+		WHERE T2.R <![CDATA[>=]]> #{page.startRow}
+	</select>
+	
+	<select id="trainerTotalCnt" parameterType="map" resultType="_int">
+		SELECT COUNT(*) FROM
+			(SELECT * FROM 
+				(SELECT * FROM DG_TRAINER
+					<if test="dateCheck != null">
+						WHERE
+						<foreach collection="dateCheck" item="i" separator="and">
+							TRAINERCONTENT LIKE '%' || #{i} || '%'
+						</foreach>
+					</if>)
+				<if test="attentionCheck != null">
+					WHERE
+					<foreach collection="attentionCheck" item="j" separator="and">
+						TRAINERCONTENT LIKE '%' || #{j} || '%'
+					</foreach>
+				</if>) 
+			WHERE TRAINERADDRESSZIPCODE LIKE #{zipCode}||'%' 
+			AND TRAINERGENDER = #{tgCheck}
+	</select>
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Report">
+	<!-- Review 작성하기 -->
+	<insert id="reportWrite" parameterType="reportVO">
+		INSERT INTO DG_REPORT 
+		VALUES(DG_REPORT_SEQ.NEXTVAL, #{reportTitle}, #{reportId}, #{reportContent},SYSDATE,0)
+	</insert>
+	
+	<!-- 현재 시퀀스 얻어오기 -->
+	<select id="getReportNum" resultType="_int">
+		SELECT DG_REPORT_SEQ.CURRVAL FROM DUAL
+	</select>
+
+
+	<!--총 report 개수 얻어오기  -->	
+	<select id="getReportCnt" resultType="_int">
+		SELECT COUNT(*) FROM DG_REPORT
+	</select>
+	
+	<select id="getReportList" parameterType="map" resultType="reportVO">
+		SELECT * FROM 
+			(SELECT ROWNUM R, D.*FROM
+				(SELECT * FROM DG_REPORT ORDER BY REPORTNUM DESC) D) B
+		WHERE B.R BETWEEN #{startRow} AND #{endRow}
+	</select>
+	<!--report게시글 가져오기  -->
+	<select id="getReportDetail" parameterType="_int" resultType="reportVO">
+		SELECT * FROM DG_REPORT WHERE REPORTNUM =#{reportNum}
+	</select>
+	
+	<!--report게시글 삭제  -->
+	<delete id="deleteReport" parameterType="_int">
+		DELETE DG_REPORT WHERE REPORTNUM =#{reportNum}
+	</delete>
+	<!--report게시글 수정 -->
+	<update id="updateReport" parameterType="reportVO">
+		UPDATE DG_REPORT SET REPORTTITLE = #{reportTitle}, REPORTCONTENT = #{reportContent}, UPLOAD = SYSDATE 
+		WHERE REPORTNUM = #{reportNum}	
+	</update>
+	
+	
+	<!--조회수증가  -->
+	<update id="updateReadCount" parameterType="_int">
+		UPDATE DG_REPORT
+		SET READCOUNT = READCOUNT +1
+		WHERE REPORTNUM =#{reportNum}
+	</update>
+	
+	
+</mapper>

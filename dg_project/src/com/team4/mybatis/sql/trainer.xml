@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Trainer">
+	<insert id="join" parameterType="trainerVO">
+		INSERT INTO DG_TRAINER(TRAINERID,TRAINERPW,TRAINERNAME,TRAINERPHONENUM,TRAINERGENDER,TRAINEREMAIL,TRAINERACCOUNT,TRAINERADDRESSZIPCODE,
+		TRAINERADDRESS,TRAINERADDRESSDETAIL,TRAINERURL,TRAINERNUM)
+		 VALUES (#{trainerId},#{trainerPw},#{trainerName},#{trainerPhoneNum},#{trainerGender},#{trainerEmail},#{trainerAccount},#{trainerAddressZipCode},
+		 #{trainerAddress},#{trainerAddressDetail},#{trainerUrl},DG_TRAINER_SEQ.NEXTVAL)		
+	</insert>
+	
+	<insert id="insertTrade" parameterType="map">
+	 INSERT INTO DG_TRADE(TRADENUM,USERID,TRAINERID,TRADECONTENT,UPLOAD,CHECKREVIEW) VALUES (DG_TRADE_SEQ.NEXTVAL,NULL,#{id},#{content},SYSDATE,0)
+	</insert>
+	<select id="imagelistAll" parameterType="string" resultType="SnsFilesVO">
+		SELECT * FROM SNSFILENAME WHERE TRAINERID = #{trainerId} ORDER BY CATEGORYNUM DESC
+	</select>
+	
+	<update id="TpayOk" parameterType="map" >
+	UPDATE DG_TRAINER SET TRAINERPOINT = TRAINERPOINT-#{pay} WHERE #{pay} 
+	<![CDATA[ <= ]]> (SELECT TRAINERPOINT FROM DG_TRAINER WHERE TRAINERID =#{id} AND TRAINERPW = #{pw}) AND TRAINERID =#{id}  AND TRAINERPW = #{pw}
+	</update>
+	
+	<select id="getProfile" parameterType="string" resultType="string">
+		SELECT FILENAME FROM SNSFILENAME WHERE FILENAME = #{fileName}
+	</select>
+	
+	<select id="getpoint" parameterType="string" resultType="_int">
+	SELECT TRAINERPOINT FROM DG_TRAINER WHERE TRAINERID =#{id}
+	</select>
+	<select id="getProfileTrainer" parameterType="string" resultType="string">
+		SELECT FILENAME FROM(SELECT * FROM PROFILENAME  WHERE TRAINERID=#{trainerId} ORDER BY CATEGORYNUM DESC) WHERE ROWNUM = 1 
+	</select>
+	
+	<select id="checkPw" parameterType="map" resultType="_int">
+		SELECT COUNT(*) FROM DG_TRAINER WHERE  TRAINERID =#{id} AND TRAINERPW =#{pw}
+	</select>
+	
+	<select id="checkId" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM ID_VIEW WHERE USERID = #{trainerId}	
+	</select>
+	
+	<select id="checkId2" parameterType="string" resultType="_int">
+      SELECT COUNT(*) FROM DG_TRAINER WHERE TRAINERID = #{trainerId}   
+   </select>
+	
+	<select id="login" parameterType="map" resultType="_int">
+		SELECT COUNT(*) FROM DG_TRAINER WHERE TRAINERID = #{id} AND TRAINERPW = #{pw}		
+	</select>
+	
+	<select id="findId" parameterType="string" resultType="string">
+		SELECT TRAINERID FROM DG_TRAINER WHERE TRAINERPHONENUM =#{PhoneNum}
+	</select>
+	
+	<select id="findPw" parameterType="map" resultType="string">
+		SELECT TRAINERID FROM DG_TRAINER WHERE TRAINERID =#{id} AND TRAINERPHONENUM =#{PhoneNum}
+	</select>
+	
+	<update id="UpdateProfile" parameterType="trainerVO" >
+		UPDATE DG_TRAINER SET TRAINERPROFILEIMAGE= #{trainerProfileImage} WHERE TRAINERID = #{trainerId}
+	</update>
+	
+	<update id="changePw" parameterType="map">
+		UPDATE DG_TRAINER SET TRAINERPW =#{pw} WHERE TRAINERID =#{id}
+	</update>
+
+	<select parameterType="map" id="createTrigger">${sql}</select>
+	
+	 <update id="UpdateTrainerId" parameterType="map">
+	UPDATE DG_TRAINER SET TRAINERID =#{modifyId} WHERE TRAINERID =#{id} AND TRAINERPW =#{pw}
+	</update>
+	
+	<update id="UpdateTrainerPw" parameterType="map">
+		UPDATE DG_TRAINER SET TRAINERPW = #{modifyPw} WHERE TRAINERID = #{id} AND TRAINERPW = #{pw}
+	</update>
+	
+	<update id="UpdateTrainerName" parameterType="map">
+		UPDATE DG_TRAINER SET TRAINERNAME = #{modifyName} WHERE TRAINERID = #{id} AND TRAINERPW = #{pw}
+	</update>
+	
+	
+	<select id ="getTrainerNum" resultType="_int">
+		SELECT DG_TRAINER_SEQ.CURRVAL FROM DUAL	
+	</select>
+	
+	<!-- 트레이너 총 인원수 -->
+	<select id="trainerCnt" resultType="_int">
+		SELECT COUNT(*) FROM DG_TRAINER
+	</select>
+	
+	<select id="getDetail" parameterType="string" resultType="trainerVO">
+		SELECT * FROM DG_TRAINER
+		WHERE TRAINERID = #{trainerId}
+	</select>
+	
+	<select id="getTradeDetail" parameterType="_int" resultType="TradeVO">
+		SELECT * FROM DG_TRADE
+		WHERE TRADENUM = #{tradeNum}
+	</select>
+	
+	<update id="updateAccount" parameterType="trainerVO">
+		UPDATE DG_TRAINER 
+		SET TRAINERACCOUNT = #{trainerAccount}
+		WHERE TRAINERID = #{trainerId}
+	</update>
+	
+	<update id="updateURL" parameterType="trainerVO">
+		UPDATE DG_TRAINER 
+		SET TRAINERURL = #{trainerUrl}
+		WHERE TRAINERID = #{trainerId}
+	</update>
+	
+	<update id="updatePrice" parameterType="trainerVO">
+		UPDATE DG_TRAINER 
+		SET TRAINERPRICE = #{trainerPrice}
+		WHERE TRAINERID = #{trainerId}
+	</update>
+	
+	<update id="updateContent" parameterType="trainerVO">
+		UPDATE DG_TRAINER 
+		SET TRAINERCONTENT = #{trainerContent}
+		WHERE TRAINERID = #{trainerId}
+	</update>
+	
+	<delete id="myPageDrawal" parameterType="trainerVO">
+	DELETE FROM DG_TRAINER WHERE TRAINERID = #{trainerId} AND TRAINERPW = #{trainerPw}
+	</delete>
+	
+	<select id="getSnsNum" resultType="_int">
+		SELECT DG_SNS_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="getProNum" resultType="_int">
+		SELECT DG_PROFILE_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="getBoardCnt"  resultType="_int">
+		SELECT COUNT(*) FROM DG_TRADE
+	</select>
+	
+	
+	<select id="getTrainerBoardCnt" parameterType ="string" resultType="_int">
+		SELECT COUNT(*) FROM DG_TRADE WHERE TRAINERID=#{id}
+	</select>
+	
+	<select id="tradelistAll" parameterType="map" resultType="TradeVO">
+		SELECT * FROM 
+			(SELECT ROWNUM R, D.* FROM 
+				(SELECT * FROM DG_TRADE WHERE TRAINERID=#{id} ORDER BY TRADENUM DESC) D) B
+		WHERE B.R BETWEEN #{startRow} AND #{endRow} 
+	</select>
+	
+	<!-- 포인트 충전 -->
+	<update id="chargeTrainerPoint" parameterType="trainerVO">
+		UPDATE DG_TRAINER SET TRAINERPOINT = TRAINERPOINT + #{trainerPoint} WHERE TRAINERID = #{trainerId}
+	</update>
+	
+	<!-- 트레이너 번호 랜덤 추출 -->
+	<select id="randomTrainerNum" resultType="string">
+		SELECT TRAINERNUM FROM DG_TRAINER ORDER BY DBMS_RANDOM.VALUE
+	</select>
+	
+	<!-- 번호로 전체 정보 가져오기 -->
+	<select id="numForAll" parameterType="_int" resultType="trainerVO">
+		SELECT * FROM DG_TRAINER WHERE TRAINERNUM = #{trainerNum}
+	</select>
+	
+	<!-- 누적회원수 가장 많은 TOP3 가져오기 -->
+	<select id="top3" resultType="trainerVO">
+		SELECT * FROM (SELECT * FROM DG_TRAINER ORDER BY TRAINERLIKE DESC) WHERE ROWNUM <![CDATA[<]]> 4
+	</select>
+	
+	<!-- 검색 -->
+	<select id="searchTrainer" parameterType="map" resultType="trainerVO">
+			SELECT * FROM 
+				(SELECT ROWNUM R, DGT.* FROM DG_TRAINER DGT 
+				WHERE 
+					(TRAINERID LIKE '%' || #{keyword} || '%' OR
+					TRAINERNAME LIKE '%' || #{keyword} || '%' OR
+					TRAINERCONTENT LIKE '%' || #{keyword} || '%') AND
+					ROWNUM <![CDATA[<=]]> #{page.endRow}) T
+			WHERE T.R >= #{page.startRow}
+	</select>
+	
+	<select id="resultCnt" parameterType="map" resultType="_int">
+		SELECT COUNT(*) FROM DG_TRAINER DGT 
+			WHERE 
+				TRAINERID LIKE '%' || #{keyword} || '%' OR
+				TRAINERNAME LIKE '%' || #{keyword} || '%' OR
+				TRAINERCONTENT LIKE '%' || #{keyword} || '%'
+	</select>
+	
+	<!-- 처음 검색한 키워드 -->
+	<insert id="insertKeyword" parameterType="string">
+		INSERT INTO DG_KEYWORD VALUES(#{keyword}, 1)
+	</insert>
+	
+	<!-- 검색한 키워드 누적 수 수정-->
+	<update id="updateKeywordCnt" parameterType="string">
+		UPDATE DG_KEYWORD
+		SET CNT = CNT + 1
+		WHERE  KEYWORD = #{keyword}
+	</update>
+	
+	<!-- 첫 검색인지 검사 -->
+	<select id="keywordCnt" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM DG_KEYWORD WHERE KEYWORD = #{keyword}
+	</select>
+	
+	<!-- 검색된 횟수 -->
+	<select id="getKeywordCnt" parameterType="string" resultType="_int">
+		SELECT CNT FROM DG_KEYWORD WHERE KEYWORD = #{keyword}
+	</select>
+</mapper>

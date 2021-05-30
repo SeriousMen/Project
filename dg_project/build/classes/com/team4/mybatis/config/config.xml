@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="com.team4.app.member.vo.MemberVO" alias="memberVO"/>
+		<typeAlias type="com.team4.app.trainer.vo.TrainerVO" alias="trainerVO"/>
+		<typeAlias type="com.team4.app.review.vo.ReviewVO" alias="reviewVO"/>
+		<typeAlias type="com.team4.app.report.vo.ReportVO" alias="reportVO"/>
+		<typeAlias type="com.team4.app.qna.vo.QnaVO" alias="qnaVO"/>
+		<typeAlias type="com.team4.app.qna.vo.QreplyVO" alias="QreplyVO"/>
+		<typeAlias type="com.team4.app.qna.vo.FilesVO" alias="filesVO"/>
+		<typeAlias type="com.team4.app.qna.vo.SnsFileVO" alias="SnsfilesVO"/>
+		<typeAlias type="com.team4.app.qna.vo.ProFileVO" alias="ProfilesVO"/>
+		<typeAlias type="com.team4.app.fileName.vo.FileNameVO" alias="filenameVO"/>
+		<typeAlias type="com.team4.app.photoboard.vo.PhotoBoardVO" alias="PhotoBoardVO"/>
+		<typeAlias type="com.team4.app.photoboard.vo.MReplyVO" alias="MReplyVO"/>
+		<typeAlias type="com.team4.app.trade.vo.TradeVO" alias="TradeVO"/>
+		<typeAlias type="com.team4.app.visit.vo.VisitVO" alias="VisitVO"/>
+	</typeAliases>
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED">
+				<property name="driver" value="oracle.jdbc.OracleDriver"/>
+				<property name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+				<property name="username" value="hr"/>
+				<property name="password" value="hr"/>
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<mapper resource="com/team4/mybatis/sql/member.xml"/>
+		<mapper resource="com/team4/mybatis/sql/trainer.xml"/>		
+		<mapper resource="com/team4/mybatis/sql/review.xml"/>
+		<mapper resource="com/team4/mybatis/sql/report.xml"/>
+		<mapper resource="com/team4/mybatis/sql/qna.xml"/>
+		<mapper resource="com/team4/mybatis/sql/file.xml"/>
+		<mapper resource="com/team4/mybatis/sql/reply.xml"/>
+		<mapper resource="com/team4/mybatis/sql/admin.xml"/>
+	</mappers>
+</configuration>

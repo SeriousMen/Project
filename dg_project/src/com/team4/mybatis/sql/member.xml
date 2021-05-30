@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Member">
+	<insert id="join" parameterType="memberVO">
+		INSERT INTO DG_MEMBER(MEMBERID,MEMBERPW,MEMBERPHONE)
+		VALUES(
+			#{memberId}, #{memberPw}, #{memberPhone}
+		)
+	</insert>
+	
+	<select id="checkId" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM ID_VIEW WHERE USERID = #{memberId}
+	</select>
+	
+	<select id="checkId2" parameterType="string" resultType="_int">
+      SELECT COUNT(*) FROM DG_MEMBER WHERE MEMBERID = #{memberId}
+   </select>
+   
+   
+	<select id="login" parameterType="map" resultType="_int">
+		SELECT COUNT(*) FROM DG_MEMBER 
+		WHERE MEMBERID =#{id} AND MEMBERPW =#{pw} 
+	</select>
+	
+	<select id="findId" parameterType="string" resultType="string">
+		SELECT MEMBERID FROM DG_MEMBER WHERE MEMBERPHONE =#{PhoneNum}
+	</select>
+	
+	<select id="findPw" parameterType="map" resultType="string">
+		SELECT MEMBERID FROM DG_MEMBER WHERE MEMBERID =#{id} AND MEMBERPHONE =#{PhoneNum} 
+	</select>
+	
+	<update id="changePw" parameterType="map">
+      UPDATE DG_MEMBER SET MEMBERPW =#{pw} WHERE MEMBERID =#{id}
+   </update>
+	
+	
+	
+	<delete id="withdrawal" parameterType="map">
+		DELETE DG_MEMBER WHERE MEMBERID =#{id} AND MEMBERPW = #{pw}
+	</delete>
+	
+	
+	<!-- 포인트 충전 -->
+	<update id="chargeMemberPoint" parameterType="memberVO">
+		UPDATE DG_MEMBER SET MEMBERPOINT = MEMBERPOINT + #{memberPoint} WHERE MEMBERID = #{memberId}
+	</update>
+	
+	<!-- 충전 내역 -->
+	<insert id="payment" parameterType="map">
+		INSERT INTO DG_TRADE(TRADENUM, USERID, TRADECONTENT, UPLOAD) VALUES(DG_TRADE_SEQ.NEXTVAL, #{memberId}, #{content}, SYSDATE)
+	</insert>
+	
+	<!--회원사진게시판작성  -->
+	<insert id="photoBoardWrite" parameterType="PhotoBoardVO" >
+		INSERT INTO DG_PHOTOBOARD(PHOTOBOARDNUM, PHOTOBOARDTITLE, MEMBERID, PHOTOBOARDCONTENT,READCOUNT,REPLYNUM) VALUES(
+		DG_PHOTO_SEQ.NEXTVAL,#{photoBoardTitle},#{memberId},#{photoBoardContent},0,0)
+	</insert>
+	<!--회원게시판 조회수 업데이트  -->
+	<update id="updateReadCount" parameterType="_int">
+		UPDATE DG_PHOTOBOARD SET READCOUNT = READCOUNT+1 WHERE PHOTOBOARDNUM =#{photoBoardNum}
+	</update>
+	
+	<select id="selectBoardNum" resultType="_int">
+		SELECT DG_PHOTO_SEQ.CURRVAL FROM DUAL
+	</select>
+	
+	<!--회원사진게시판 페이지리스트  -->
+	<select id="listAll" parameterType="map" resultType="PhotoBoardVO">
+		SELECT *FROM
+		 (SELECT ROWNUM R, D.* FROM 
+		(SELECT *FROM DG_PHOTOBOARD ORDER BY PHOTOBOARDNUM DESC) D) B 
+		WHERE B.R BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<!--저위의 작성된 리스트중 photoboardnum만 가져오기 -->
+	<select id="getPhotoBoardNum" parameterType="map" resultType="_int">
+		SELECT PHOTOBOARDNUM FROM
+		 (SELECT ROWNUM R, D.* FROM 
+		(SELECT *FROM DG_PHOTOBOARD ORDER BY PHOTOBOARDNUM DESC) D) B 
+		WHERE B.R BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<!--작성된 회원게시판 게시물 수  -->
+	<select id="getBoardCnt" resultType="_int">
+		SELECT COUNT(*) FROM DG_PHOTOBOARD
+	</select>
+	
+	<select id="getPhotoBoardDetail" parameterType="_int" resultType="PhotoBoardVO">
+	SELECT * FROM DG_PHOTOBOARD WHERE PHOTOBOARDNUM = #{photoBoardNum}
+	</select>
+	<!--게시물 수정  -->
+	<update id="updateBoard" parameterType="PhotoBoardVO">
+		UPDATE DG_PHOTOBOARD SET PHOTOBOARDTITLE = #{photoBoardTitle}, PHOTOBOARDCONTENT = #{photoBoardContent}, UPLOAD = SYSDATE WHERE PHOTOBOARDNUM = #{photoBoardNum}
+	</update>
+	
+	<delete id="deletePhotoBoard" parameterType="_int">
+		DELETE DG_PHOTOBOARD WHERE PHOTOBOARDNUM = #{photoBoardNum}
+	</delete>
+	
+	<!--댓글  -->
+	<select id="getReplyList" parameterType="_int" resultType="MReplyVO">
+		SELECT * FROM DG_MREPLY WHERE PHOTONUM = #{photoBoardNum} ORDER BY MREPLYNUM DESC
+	</select>
+	
+	<insert id="insertReply" parameterType="MReplyVO">
+		INSERT INTO DG_MREPLY(MREPLYNUM,PHOTONUM,MEMBERID,MREPLYCONTENT)
+		VALUES(DG_MREPLY_SEQ.NEXTVAL, #{photoNum}, #{memberId}, #{mReplyContent})	
+	</insert>
+	
+	<delete id="deleteReply" parameterType="_int">
+		DELETE FROM DG_MREPLY WHERE MREPLYNUM = #{mReplyNum}
+	</delete>
+	
+	<update id="updateReply" parameterType="MReplyVO">
+		UPDATE DG_MREPLY 
+		SET MREPLYCONTENT = #{mReplyContent} 
+		WHERE MREPLYNUM = #{mReplyNum}
+	</update>
+	
+	<!--해당 게시글 댓글 수 증감 -->
+	<update id ="plusReplyNum" parameterType="_int">
+	UPDATE DG_PHOTOBOARD SET REPLYNUM = REPLYNUM+1 WHERE PHOTOBOARDNUM =#{photoBoardNum}
+	</update>
+	<!--해당 게시글 댓글 수 차감   -->
+	<update id ="minusReplyNum" parameterType="_int">
+	UPDATE DG_PHOTOBOARD SET REPLYNUM = REPLYNUM-1 WHERE PHOTOBOARDNUM =#{photoBoardNum}
+	</update>
+	<!-- id로 행 가져오기 -->
+	<select id="getMemberDetail" parameterType="string" resultType="memberVO">
+		SELECT * FROM DG_MEMBER WHERE MEMBERID = #{memberId}
+	</select>
+	
+	<!-- 총 회원수 구하기 -->
+	<select id="totalMember" resultType="_int">
+		SELECT COUNT(*) FROM DG_MEMBER
+	</select>
+	
+	<!--회원 폰번가져오기  -->
+	<select id="selectMemberPhone" parameterType ="string" resultType="string">
+		SELECT MEMBERPHONE FROM DG_MEMBER WHERE MEMBERID=#{memberId}
+	</select>
+	
+	<!--회원 폰번 업데이트  -->
+	<update id="changeMemberPhone" parameterType="memberVO">
+		UPDATE DG_MEMBER SET MEMBERPHONE =#{memberPhone} WHERE MEMBERID = #{memberId}
+	</update>
+	
+	<!--회원 결제 내역보기 -->
+	<select id="selectTrade" parameterType="_int" resultType="TradeVO">
+		SELECT * FROM DG_TRADE WHERE TRADENUM = #{tradeNum}
+	</select>
+	
+	<!--결제내역수  -->
+	<select id="getTradeCnt" resultType="_int">
+		SELECT COUNT(*) FROM DG_TRADE
+	</select>
+	
+	<!--해당 멤버의 결제내역수  -->
+	<select id="getMemberTradeCnt" parameterType ="string" resultType ="_int">
+	SELECT COUNT(*) FROM DG_TRADE WHERE USERID = #{userId}
+	</select>
+	
+	<!--오늘 결제 수  -->
+	<select id="getTradeToday"  resultType="_int">
+		 SELECT COUNT(*) FROM DG_TRADE WHERE TO_CHAR(UPLOAD,'YYYY-MM-DD')=(SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD')FROM DUAL)
+	</select>
+	<!--해당 페이지만큼의 회원 결제내역들 -->
+	<select id="getTradeList" parameterType="map" resultType="TradeVO">
+		SELECT *FROM
+		 (SELECT ROWNUM R, D.* FROM 
+		(SELECT *FROM DG_TRADE WHERE USERID = #{memberId} ORDER BY TRADENUM DESC) D) B 
+		WHERE B.R BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<!--오늘 방문 수 담기(전체방문수)  -->
+	<insert id="insertTDate">
+		INSERT INTO VISIT VALUES(SYSDATE) 
+	</insert>
+	
+	<!--오늘 방문자 수 가져오기  -->
+	<select id="getTDate" resultType="_int">
+		SELECT COUNT(*)  FROM VISIT WHERE TO_CHAR(TDATE,'YYYY-MM-DD')=(SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD')FROM DUAL)
+	</select>
+	
+</mapper>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>dg_project</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <servlet>
+    <servlet-name>MemberFrontController</servlet-name>
+    <servlet-class>com.team4.app.member.MemberFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MemberFrontController</servlet-name>
+    <url-pattern>*.me</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>TrainerFrontController</servlet-name>
+    <servlet-class>com.team4.app.trainer.TrainerFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TrainerFrontController</servlet-name>
+    <url-pattern>*.tr</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>ReviewFrontController</servlet-name>
+    <servlet-class>com.team4.app.review.ReviewFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ReviewFrontController</servlet-name>
+    <url-pattern>*.rv</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>QnABoardFrontController</servlet-name>
+    <servlet-class>com.team4.app.qnaboard.QnABoardFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>QnABoardFrontController</servlet-name>
+    <url-pattern>*.qn</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>ReportFrontController</servlet-name>
+    <servlet-class>com.team4.app.report.ReportFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ReportFrontController</servlet-name>
+    <url-pattern>*.rp</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>AdminFrontController</servlet-name>
+    <servlet-class>com.team4.app.admin.AdminFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AdminFrontController</servlet-name>
+    <url-pattern>*.ad</url-pattern>
+  </servlet-mapping>
+  
+   <listener>
+      <listener-class>com.team4.action.VisitSessionListener</listener-class>
+  </listener>
+
+
+
+</web-app>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- review 6번 사용 -->
+<mapper namespace="Files">
+	<!-- 리뷰 -->
+	<!-- 리뷰 첨부파일 이름 등록 -->
+	<insert id="reviewInsert" parameterType="filenameVO">
+		INSERT INTO FILENAME VALUES(#{categoryNum}, #{boardNum}, #{userId}, #{fileName})
+	</insert>
+	
+	<!-- 리뷰 첨부파일 가져오기 -->
+	<select id="getReviewFile" parameterType="map" resultType="filenameVO">
+		SELECT * FROM FILENAME WHERE CATEGORYNUM = #{categoryNum} AND boardNum = #{reviewNum}
+	</select>
+	
+	<!-- 리뷰 첨부파일 삭제하기 -->
+	<delete id="deleteReviewFile" parameterType="map">
+		DELETE FILENAME WHERE CATEGORYNUM = #{categoryNum} AND boardNum = #{reviewNum}
+	</delete>
+	
+	<!--신고  -->
+	<!-- 신고 파일 이름 등록 -->
+	<insert id="reportInsert" parameterType="filenameVO">
+		INSERT INTO FILENAME VALUES(#{categoryNum}, #{boardNum}, #{userId}, #{fileName})
+	</insert>
+	
+	<!-- 신고 첨부파일 가져오기 -->
+	<select id="getReportFile" parameterType="map" resultType="filenameVO">
+		SELECT * FROM FILENAME WHERE CATEGORYNUM = #{categoryNum} AND boardNum = #{reportNum}
+	</select>
+	
+	<!-- 신고 첨부파일 삭제하기 -->
+	<delete id="deleteReportFile" parameterType="map">
+		DELETE FILENAME WHERE CATEGORYNUM = #{categoryNum} AND boardNum = #{reportNum}
+	</delete>
+	
+	<!-- Q&A -->
+	<insert id="insertFile" parameterType="filesVO">
+		INSERT INTO FILENAME VALUES(FILENAME_SEQ.NEXTVAL, #{boardNum}, #{userId}, #{fileName})
+	</insert>
+	
+	<insert id="insertSnsFile" parameterType="SnsfilesVO">
+		INSERT INTO SNSFILENAME VALUES(FILENAME_SEQ.NEXTVAL, #{boardNum}, #{fileName}, #{trainerId})
+	</insert>
+	
+	<insert id="insertProFile" parameterType="ProfilesVO">
+		INSERT INTO PROFILENAME VALUES(DG_PROFILE_SEQ.NEXTVAL, #{boardNum}, #{fileName}, #{trainerId})
+	</insert>
+	
+	<select id="getFileList" parameterType="_int" resultType="filesVO">
+		SELECT * FROM FILENAME WHERE BOARDNUM = #{boardNum}
+	</select>
+	
+	<delete id="deleteFile" parameterType="_int">
+		DELETE FROM FILENAME WHERE BOARDNUM = #{boardNum}
+	</delete>
+
+	<delete id="deleteSnsFile" parameterType="string">
+		DELETE FROM SNSFILENAME WHERE FILENAME = #{fileName}
+	</delete>
+	
+	<!-- trainerId로 프로필 사진 가져오기 -->
+	<!-- <select id="idForProfile" parameterType="string" resultType="string">
+		SELECT FILENAME FROM PROFILENAME WHERE TRAINERID = #{trainerId}
+	</select> -->
+	
+	
+	<!--멤버탈퇴시 사진삭제-->
+	<delete id="deleteUserFile" parameterType="string">
+		DELETE FILENAME WHERE userId = #{userId}
+	</delete> 
+	
+	<!--사진게시판에서 해당 사진이름만가져오기  -->
+	<select id="getFileName" parameterType="map" resultType="string">
+		SELECT FILENAME FROM FILENAME WHERE CATEGORYNUM = #{categoryNum} AND boardNum = #{reviewNum} AND rownum=1
+	</select>	
+	
+</mapper>
