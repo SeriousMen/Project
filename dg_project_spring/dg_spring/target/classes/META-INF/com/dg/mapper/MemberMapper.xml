@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dg.mapper.MemberMapper">
+
+	<!--회원가입 -->
+	<insert id="join" parameterType="com.dg.domain.MemberVO">
+		INSERT INTO DS_MEMBER(MEMBERID, MEMBERPW,MEMBERPHONE)
+		VALUES(#{memberId},#{memberPw},#{memberPhone})
+	</insert>
+
+	<!--아이디중복체크 (일반회원,트레이너회원 구분없이) 안에 #{memberId}부분은 형태와 상관없이 트레이너 아이디도 들어갈 
+		수 있음 -->
+	<select id="checkId" resultType="_int">
+		SELECT COUNT(USERID) FROM DS_ID_VIEW WHERE USERID =#{memberId}
+	</select>
+
+	<!--일반회원인지 확인하는 쿼리 -->
+	<select id="checkMemberId" resultType="_int">
+		SELECT COUNT(*) FROM DS_MEMBER WHERE MEMBERID =#{memberId}
+	</select>
+
+	<!--로그인 -->
+	<select id='login' resultType="_int">
+		SELECT COUNT(*) FROM DS_MEMBER WHERE MEMBERID =#{memberId} AND MEMBERPW =
+		#{memberPw}
+	</select>
+
+	<!--아이디 찾기 -->
+	<select id="findId" resultType="string">
+		SELECT MEMBERID FROM DS_MEMBER WHERE MEMBERPHONE =#{phoneNum}
+	</select>
+
+	<!--비밀번호 찾기 (비밀번호를 주는게 아니라 조건식이 일치하면 비밀번호를 새로 발부해준다.) -->
+	<select id="findPw" resultType="_int">
+		SELECT COUNT(*) FROM DS_MEMBER WHERE MEMBERID=#{memberId} AND
+		MEMBERPHONE=#{memberPhone}
+	</select>
+	<!--비밀번호 변경  -->
+	<update id="changePw" >
+		UPDATE DS_MEMBER
+		SET MEMBERPW =#{newPw}
+		WHERE MEMBERID= #{member.memberId} AND MEMBERPW= #{member.memberPw}
+	</update>
+	<!--아이디 변경-->
+	<update id="changeId" >
+		UPDATE DS_MEMBER
+		SET MEMBERID = #{newId}
+		WHERE MEMBERID=#{member.memberId} AND MEMBERPW = #{member.memberPw}
+	</update>
+	
+	<!--회원탈톼 -->
+	<delete id="withdrawal">
+		DELETE DS_MEMBER WHERE MEMBERID=#{memberId} AND MEMBERPW = #{memberPw}
+	</delete>
+	
+	<!--휴대폰 번호 중복여부  -->
+	<select id="checkPhone" resultType="_int">
+		SELECT COUNT(MEMBERPHONE) FROM DS_MEMBER WHERE MEMBERPHONE=#{memberPhone}
+	
+	</select>
+</mapper>

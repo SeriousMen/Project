@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dg.mapper.BoardAttachMapper">
+	<insert id="insert">
+		INSERT INTO DS_ATTACH(UUID, UPLOADPATH, FILENAME, FILETYPE, BNO, BOARDNUM)
+		VALUES(#{uuid}, #{uploadPath}, #{fileName}, #{fileType}, #{bno}, #{boardNum}) 
+	</insert>
+	
+	<delete id="delete">
+		DELETE DS_ATTACH
+		WHERE UUID = #{uuid}
+	</delete>
+	
+	<delete id="deleteAll">
+		DELETE DS_ATTACH
+		WHERE BNO =#{bno}
+	</delete>
+	
+	<select id="findByBno" resultType="com.dg.domain.BoardAttachVO">
+		SELECT * FROM DS_ATTACH WHERE BNO = #{bno} 
+	</select>
+</mapper>

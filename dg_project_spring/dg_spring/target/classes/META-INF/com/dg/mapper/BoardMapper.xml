@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dg.mapper.BoardMapper"> <!--Mapper.java와 경로를 같게한다.  -->
+<!--게시판 종류(BOARD) 1.QnA게시판 2.신고게시판3.회원사진게시판 4.리뷰  -->
+
+<!-- mybatis3버전 이상부터는 parameterType을 생략해도된다.(자동으로 맞게해줌) 근데 그냥 가독성을 위해 써놨다. -->
+
+<!--이렇게 NEXTVAL로 insert하나 selectKey로 인설트하나 결과는 비슷하지만 bno에 값을 저장해서 사용을 하려면 selectKey를 이용해 조회해야한다. -->
+	 <insert id="insertBoard" parameterType="com.dg.domain.BoardVO" >
+		INSERT INTO DS_BOARD(BNO,BOARDNUM,TITLE,CONTENT,WRITER) 
+		VALUES (SEQ_DSBOARD.NEXTVAL,#{boardNum},#{title},#{content},#{writer}) 
+	</insert> 
+
+	 <insert id="insertSelectKey_bno" > 
+		<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+			SELECT SEQ_DSBOARD.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO DS_BOARD(BNO,BOARDNUM, TITLE,CONTENT, WRITER)
+		VALUES(#{bno},#{boardNum}, #{title},#{content},#{writer})
+	</insert> 
+
+	<select id="readBoard" resultType="com.dg.domain.BoardVO">
+		SELECT *FROM DS_BOARD WHERE BOARDNUM=#{boardNum} AND BNO=#{bno}
+	</select>
+	
+	<update id="modifyBoard">
+		UPDATE DS_BOARD
+		SET TITLE=#{title},CONTENT=#{content}, UPDATEDATE = SYSDATE
+		WHERE BOARDNUM=#{boardNum} AND BNO=#{bno}
+	</update>
+	
+	<delete id="deleteBoard">
+		DELETE DS_BOARD
+		WHERE  BOARDNUM=#{boardNum} AND BNO=#{bno}
+	</delete>
+	
+	<!--조회 구현  -->
+	<!--모든 게시판 글 가져오기  -->
+	<select id="getList" resultType="com.dg.domain.BoardVO">
+		<![CDATA[
+			SELECT * FROM DS_BOARD WHERE BOARDNUM =#{boardNum} AND BNO>0
+		]]>
+	</select>
+	
+	<!--검색 구현  : 페이지list를 검색을 하지않을때와 했을때의 경우를 하나의 쿼리로 작성할 것-->
+	
+	<sql id="criteria">	<!--SQL태그는 최상단에 위치해야 사용할 때 참조할 수 있다.  -->
+	<!--검색을 했을 때 아래 쿼리를 실행할 것   -->
+		<if test="cri.type != null and cri.keyword !=null">
+		<trim prefix="(" suffix=")" prefixOverrides="OR">
+			<foreach item="type" collection="cri.typeArr"> <!--쪼갠걸 하나씩 뽑아준다.  -->
+				<trim prefix="OR">
+					<choose>
+					<when test="type=='T'.toString()">
+					(TITLE LIKE '%'||#{cri.keyword}||'%')
+					</when>
+					<when test="type=='C'.toString()">
+					(CONTENT LIKE '%'||#{cri.keyword}||'%')
+					</when>
+					<when test="type=='W'.toString()">
+					(WRITER LIKE '%'||#{cri.keyword}||'%')
+					</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+		</if>
+	</sql>
+	
+	<!--포함된 게시글 목록 불러오기(검색시도 동적쿼리로 한번에)  -->
+	<select id="getListWithPaging"  resultType="com.dg.domain.BoardVO">
+		SELECT BNO,BOARDNUM, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE
+		FROM 
+		(SELECT /*+INDEX_DESC(DS_BOARD PK_DSBOARD) */ ROWNUM RN, BNO,BOARDNUM, TITLE, CONTENt, WRITER, REGDATE, UPDATEDATE
+		FROM DS_BOARD
+		<where> <!--컨텐츠의 내용을 내림차순(최신순)으로 가져오고 만약에 criteria조건이 충족된다면 실행되고 아니라면 뒤에 CDATA조건식이 붙는다.  -->
+		<!--맨앞이 ANd만 오면 없애줌  -->
+		<include refid="criteria"/>
+		AND BOARDNUM = #{boardNum} AND
+		</where>
+		<![CDATA[
+		 ROWNUM <= #{cri.pageNum} *#{cri.amount})
+		WHERE RN> (#{cri.pageNum}-1) * #{cri.amount}
+		]]>	<!--해당 페이지의 이전페이지의 갯수보다 큰 것들을 불러오는거니까 해당 페이지에 해당하는 것을 불러오는 것  -->
+	</select>
+	
+	
+	<!--페이징 처리할 때 realEnd를 구하기 위해 모든 게시물의 갯수를 가져오는 쿼리문이 필요하다.  -->
+	<!--또한 검색시에도 검색한 게시물의 총갯수를 가져와야 검색시 페이징 처리를 할 수 있기 때문에 criteria를 역시 추가해준다.  -->
+	<!--태그안에 그냥 where을 작성하지 않고 where태그를 쓰는 이유  1.where태그안에 if문을 타지 않으면 where자체가 없어진다. 2.문두에 AND가 오면 알아서 빼준다.-->
+	<select id="getTotal" resultType="_int">
+		SELECT COUNT(BNO) FROM DS_BOARD
+		<where>
+			 <!--맨 뒤에 AND가 오는데 뒤에 추가적인 조건이 없으니 없애준다.  -->
+				<include refid="criteria"/>
+				AND BOARDNUM =#{boardNum}
+			
+		</where>
+	</select>
+	
+
+</mapper>
+
